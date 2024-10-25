@@ -7,6 +7,25 @@ import Stemmer
 import re
 from tqdm import tqdm
 import collections
+import src.custom_stopwords as cs
+from arabicstopwords import arabicstopwords as stp
+
+def stopword_version2(lang):
+    if lang == 'en':
+        return cs.STOPWORDS_en
+    elif lang == 'es':
+        return cs.STOPWORDS_es
+    elif lang == 'fr':
+        return cs.STOPWORDS_fr
+    elif lang == 'de':
+        return cs.STOPWORDS_de
+    elif lang == 'it':
+        return cs.STOPWORDS_it
+    elif lang == 'ar':
+        return stp.stopwords_list()
+    elif lang == 'ko':
+        return cs.STOPWORDS_ko
+
 
 class WordToBase:
     """
@@ -36,22 +55,25 @@ class TextProcessor:
     """
     Class to preprocess the corpus and queries
     """
-    def __init__(self, lang, stopwords=None):
+    def __init__(self, lang, stopwords=None, stopwords_version=None):
         self.lang = lang
         self.word_to_base = {}
         self.base_to_baseidx = {}
         self.word_to_wordidx = {}
         self.remove_punct = re.compile(r'(?u)\b\w\w+\b') # This is what sklearn uses
         if stopwords is None:
-            self.stopwords = set(self.get_stopwords(lang))
+            self.stopwords = set(self.get_stopwords(lang, stopwords_version))
         else:
             self.stopwords = stopwords
 
-    def get_stopwords(self, lang):
+    def get_stopwords(self, lang, stopwords_version=None):
         """
         Stopwords for the corresponding language
         """
-        return stopwordsiso.stopwords(lang)
+        if stopwords_version is None:
+            return stopwordsiso.stopwords(lang)
+        elif stopwords_version == 'v2':
+            return stopword_version2(lang)
         
 
     def preprocess_corpus(self, corpus):
@@ -79,6 +101,11 @@ class TextProcessor:
                 if word in self.word_to_wordidx:
                     document_token_indices.append(self.word_to_wordidx[word])
                     continue
+                
+                # Do you have changing change 
+                # [-, -, -, 0, 0] -> [0, 0]
+                # [-, -, -, 0, 1]
+
                 # if we encounter a stopword, we discard it
                 # Note, this if condition is 2nd as it improves performance
                 if word in self.stopwords:
@@ -145,6 +172,10 @@ class TextProcessor:
         # We then compute the base form of each word
         base_words = stemmer(unique_words)
         unique_base_words = set(base_words)
+
+        # Does Mickey Mouse have housing
+        # [-, mickey, mouse, housing] ->collect all words
+        # [-, mickey, mous, hous]
 
         # We generate the base_word -> base_idx mapping
         unique_base_to_baseidx = {x:i for (i,x) in enumerate(unique_base_words)}

@@ -11,7 +11,7 @@ from src.text import TextProcessor
 if __name__ == '__main__':
     print('Loading Corpus')
     corpus = json.load(open('../dis-project-1-document-retrieval/corpus.json/corpus.json', 'r'))
-    dev_df = pd.read_csv('../dis-project-1-document-retrieval/test.csv')
+    dev_df = pd.read_csv('../dis-project-1-document-retrieval/dev.csv')
     all_languages = set([x['lang'] for x in corpus])
 
     all_corpus = {}
@@ -25,13 +25,14 @@ if __name__ == '__main__':
         my_text = [x['text'] for x in my_corpus]
         all_corpus[lang] = my_corpus
         all_text[lang] = my_text
-        all_tfidf[lang] = BM25_V2(my_text, save_path=f'dump/{lang}', load=True)
+        # all_tfidf[lang] = BM25_V2(my_text, save_path=f'dump/{lang}', load=True)
+        all_tfidf[lang] = BM25_PLUS_V2(my_text, save_path=f'dump/{lang}', load=True)
         all_P[lang] = TextProcessor(lang)
 
 
     all_queries = dev_df['query'].tolist()
     all_query_languages = dev_df['lang'].tolist()
-    # all_positive_docs = dev_df['positive_docs'].tolist()
+    all_positive_docs = dev_df['positive_docs'].tolist()
     all_ids = dev_df.index.tolist()
 
     all_top_10_ids = []
@@ -46,10 +47,10 @@ if __name__ == '__main__':
 
 
 
-    # recall_at_10(all_positive_docs, all_top_10_ids)
+    recall_at_10(all_positive_docs, all_top_10_ids)
 
-    my_df = pd.DataFrame({'id': all_ids, 'docids': [str(x) for x in all_top_10_ids]})
-    my_df.to_csv('submission.csv')
+    # my_df = pd.DataFrame({'id': all_ids, 'docids': [str(x) for x in all_top_10_ids]})
+    # my_df.to_csv('submission.csv')
 
 
         

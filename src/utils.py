@@ -88,7 +88,7 @@ def parallel_topk(array, topk):
 
     return values, indices
 
-@numba.njit
+@numba.njit()
 def query_token_score(single_query_tokens, score_indptr, indices, data, num_corpus):
     start = score_indptr[single_query_tokens]
     end = score_indptr[single_query_tokens + 1]
@@ -102,7 +102,7 @@ def query_token_score(single_query_tokens, score_indptr, indices, data, num_corp
 
 @numba.njit(parallel=True)
 def all_query_token_score(query_ptrs, query_tokens_ids_flat, topk, score_indptr, indices, data, num_corpus):
-    topk_scores = np.zeros((len(query_ptrs)-1, topk), dtype=np.float32)
+    topk_scores = np.zeros((len(query_ptrs)-1, topk), dtype=np.float32) # num queries x k
     topk_indices = np.zeros((len(query_ptrs)-1, topk), dtype=np.int64)
 
     for i in numba.prange(len(query_ptrs) - 1):
@@ -120,9 +120,23 @@ def recall_at_10(positive_docs, top_10_ids):
     for positive_doc, top_10_id in zip(positive_docs, top_10_ids):
         recall.append(positive_doc in top_10_id)
     print(np.mean(recall))
+
+def return_recall_at_10(positive_docs, top_10_ids):
+    recall = []
+    for positive_doc, top_10_id in zip(positive_docs, top_10_ids):
+        recall.append(positive_doc in top_10_id)
+    return np.mean(recall)
     
 def idx_to_docid(idx_list_list, corpus):
     res = []
     for idx_list in idx_list_list:
         res.append(list(map(lambda x: corpus[x]['docid'], idx_list)))
     return res
+
+def get_class(kls):
+    parts = kls.split(".")
+    module = ".".join(parts[:-1])
+    m = __import__(module)
+    for comp in parts[1:]:
+        m = getattr(m, comp)
+    return m

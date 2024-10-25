@@ -2,6 +2,11 @@
 tfidf/
 tmp/
 dump/
+dump.zip
+wandb/
+korean_text.pkl
+tmp.py
+best_dump/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
