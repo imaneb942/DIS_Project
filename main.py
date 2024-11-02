@@ -8,7 +8,13 @@ import os
 from src.utils import idx_to_docid, return_recall_at_10, get_class
 import argparse
 
-parser = argparse.ArgumentParser()
+class ExplicitDefaultsHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
+    def _get_help_string(self, action):
+        if action.default is None or action.default is False:
+            return action.help
+        return super()._get_help_string(action)
+
+parser = argparse.ArgumentParser(formatter_class=ExplicitDefaultsHelpFormatter)
 parser.add_argument(
     "--method",
     type=str,

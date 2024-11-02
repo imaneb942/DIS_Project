@@ -1,0 +1,8 @@
+Arabic_Stopwords==0.4.3
+numba==0.60.0
+numpy==2.1.2
+pandas==2.2.3
+PyStemmer==2.2.0.3
+scipy==1.14.1
+stopwordsiso==0.6.1
+tqdm==4.66.5
