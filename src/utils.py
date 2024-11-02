@@ -7,6 +7,8 @@ import Stemmer
 import re
 from tqdm import tqdm
 import collections
+from typing import Sequence, List, Dict, Tuple
+
 
 @numba.njit()
 def sift_down(values, indices, startpos, pos):
@@ -62,8 +64,20 @@ def heap_pop(values, indices, length):
     sift_up(values, indices, 0, length - 1)
     return return_value, return_index
 
+
 @numba.njit()
-def parallel_topk(array, topk):
+def parallel_topk(array: np.ndarray, topk: int) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute the topk elements in the array in parallel using a heap.
+    Implementation from https://github.com/xhluca/bm25s/blob/main/bm25s/numba/selection.py
+
+    Args:
+        array: np.ndarray -> Array of scores
+        topk: int -> Number of topk elements to return
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray] -> Tuple of topk scores and their indices
+    """
     n = len(array)
     if topk > n:
         topk = n
@@ -88,6 +102,7 @@ def parallel_topk(array, topk):
 
     return values, indices
 
+
 @numba.njit()
 def query_token_score(single_query_tokens, score_indptr, indices, data, num_corpus):
     start = score_indptr[single_query_tokens]
@@ -100,40 +115,72 @@ def query_token_score(single_query_tokens, score_indptr, indices, data, num_corp
 
     return scores
 
+
 @numba.njit(parallel=True)
-def all_query_token_score(query_ptrs, query_tokens_ids_flat, topk, score_indptr, indices, data, num_corpus):
-    topk_scores = np.zeros((len(query_ptrs)-1, topk), dtype=np.float32) # num queries x k
-    topk_indices = np.zeros((len(query_ptrs)-1, topk), dtype=np.int64)
+def all_query_token_score(
+    query_ptrs, query_tokens_ids_flat, topk, score_indptr, indices, data, num_corpus
+):
+    topk_scores = np.zeros(
+        (len(query_ptrs) - 1, topk), dtype=np.float32
+    )  # num queries x k
+    topk_indices = np.zeros((len(query_ptrs) - 1, topk), dtype=np.int64)
 
     for i in numba.prange(len(query_ptrs) - 1):
-        single_query_tokens = query_tokens_ids_flat[query_ptrs[i]:query_ptrs[i+1]]
-        single_query_score = query_token_score(single_query_tokens, score_indptr, indices, data, num_corpus)
-        topk_scores_sing, topk_indices_sing = parallel_topk(single_query_score, topk=topk)
+        single_query_tokens = query_tokens_ids_flat[query_ptrs[i] : query_ptrs[i + 1]]
+        single_query_score = query_token_score(
+            single_query_tokens, score_indptr, indices, data, num_corpus
+        )
+        topk_scores_sing, topk_indices_sing = parallel_topk(
+            single_query_score, topk=topk
+        )
         topk_scores[i] = topk_scores_sing
         topk_indices[i] = topk_indices_sing
 
     return topk_scores, topk_indices
 
 
-def recall_at_10(positive_docs, top_10_ids):
-    recall = []
-    for positive_doc, top_10_id in zip(positive_docs, top_10_ids):
-        recall.append(positive_doc in top_10_id)
-    print(np.mean(recall))
+def return_recall_at_10(positive_docs: List[str], top_10_ids: List[str]) -> float:
+    """
+    Given the positive_docs and top_10_ids, return the recall@10. Since we have only 1 positive document, this is equivalent to the check if the positive document is in the top 10 documents
 
-def return_recall_at_10(positive_docs, top_10_ids):
+    Args:
+        positive_docs: List[str] -> List of docids of the positive documents
+        top_10_ids: List[str] -> List of docids of top 10 documents for each query
+
+    """
     recall = []
     for positive_doc, top_10_id in zip(positive_docs, top_10_ids):
         recall.append(positive_doc in top_10_id)
     return np.mean(recall)
-    
-def idx_to_docid(idx_list_list, corpus):
+
+
+def idx_to_docid(idx_list_list: List[List], corpus: List[Dict]) -> List[List[str]]:
+    """
+    Given idx_list_list, which is a list of indices of the topk documents corresponding to each query in the corpus, return the docids of the topk documents
+
+    Args:
+        idx_list_list: List[List] -> List of indices of the topk documents for each query
+        corpus: List[Dict] -> List of documents in the corpus
+
+    Returns:
+        List[List[str]] -> List of docids of the topk documents for each query
+    """
     res = []
     for idx_list in idx_list_list:
-        res.append(list(map(lambda x: corpus[x]['docid'], idx_list)))
+        res.append(list(map(lambda x: corpus[x]["docid"], idx_list)))
     return res
 
-def get_class(kls):
+
+def get_class(kls: str) -> type:
+    """
+    Given a string representation of a class, return the class itself (eg. 'src.methods.BM25_V2' -> BM25_V2)
+
+    Args:
+        kls: str -> String representation of the class
+
+    Returns:
+        type -> Class itself
+    """
     parts = kls.split(".")
     module = ".".join(parts[:-1])
     m = __import__(module)

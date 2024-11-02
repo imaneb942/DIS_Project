@@ -5,7 +5,7 @@ import time
 import numpy as np
 from src.text import TextProcessor
 import os
-from src.utils import idx_to_docid, recall_at_10, get_class, return_recall_at_10
+from src.utils import idx_to_docid, get_class, return_recall_at_10
 import wandb
 
 
@@ -48,40 +48,40 @@ if __name__ == '__main__':
         # for method in ['BM25_V1', 'BM25_V2', 'BM25_PLUS', 'BM25_PLUS_V2', 'DLITE', 'DLITE_CBRT']:
     bs = np.linspace(0.3, 0.9, 13)
     ks = np.linspace(1.0, 2.0, 11)
-    d=1
-
     # ds = np.linspace(0.4, 1, 7)
+    ds = [1, 0.5]
     # k1 = 1.5
 
-    method = 'DLITE'
+    method = 'BM25_PLUS'
     M = get_class(f'src.methods.{method}')
     print('Starting', method)
-    for b in bs:
-        for k1 in ks:
-        # for d in ds:
-            print(f'Starting indexing for b={b}, d={d}')
-            project_name = f'{method}_b={b}_k1={k1}_NormalStop'
-            # project_name = f'{method}_b={b}_d={d}_NormalStop'
-            run = wandb.init(project=method, name=project_name, entity='epfl-courses', reinit=True)
-            wandb.config = {'b': b, 'k1': k1, 'd': d}
-            for lang in ['ar', 'de', 'es', 'it', 'ko', 'en', 'fr']:
-                # tf_idf = M(my_text, k1=1.5, b=0.75, d=1, save_path=f'dump/{lang}') # for all 
-                tf_idf = M(all_text[lang], k1=k1, b=b, d=d, save_path=f'dump/{lang}') # for BM25_V2, d is irrelevant
-                start = time.perf_counter()
-                tf_idf.calculate_scores(all_corpus_tokens[lang], all_corpus_map[lang])
-                end = time.perf_counter()
-                print(f'Indexing took {end - start}s.')
-                # print(f'Saving Index and Vocab to dump/{lang}')
-                # start = time.perf_counter()
-                # tf_idf.save()
-                # end = time.perf_counter()
-                # print(f'Saving index took {end - start}s.')
-                results, scores = tf_idf.parallel_search(all_query_tokens[lang], all_query_map[lang], topk=10, num_threads=1)
-                results = idx_to_docid(results, all_corpus[lang])
-                s = return_recall_at_10(all_dev_set_positive_docs[lang], results)
+    for d in ds:
+        for b in bs:
+            for k1 in ks:
+            # for d in ds:
+                print(f'Starting indexing for b={b}, d={d}, k1={k1}')
+                project_name = f'{method}_b={b}_k1={k1}_d={d}_NormalStop'
+                # project_name = f'{method}_b={b}_d={d}_NormalStop'
+                run = wandb.init(project=method, name=project_name, entity='epfl-courses', reinit=True)
+                wandb.config = {'b': b, 'k1': k1, 'd': d}
+                for lang in ['ar', 'de', 'es', 'it', 'ko', 'en', 'fr']:
+                    # tf_idf = M(my_text, k1=1.5, b=0.75, d=1, save_path=f'dump/{lang}') # for all 
+                    tf_idf = M(all_text[lang], k1=k1, b=b, d=d, save_path=f'dump/{lang}') # for BM25_V2, d is irrelevant
+                    start = time.perf_counter()
+                    tf_idf.calculate_scores(all_corpus_tokens[lang], all_corpus_map[lang])
+                    end = time.perf_counter()
+                    print(f'Indexing took {end - start}s.')
+                    # print(f'Saving Index and Vocab to dump/{lang}')
+                    # start = time.perf_counter()
+                    # tf_idf.save()
+                    # end = time.perf_counter()
+                    # print(f'Saving index took {end - start}s.')
+                    results, scores = tf_idf.parallel_search(all_query_tokens[lang], all_query_map[lang], topk=10, num_threads=1)
+                    results = idx_to_docid(results, all_corpus[lang])
+                    s = return_recall_at_10(all_dev_set_positive_docs[lang], results)
 
-                print('Recall for lang', lang, 'is', s)
+                    print('Recall for lang', lang, 'is', s)
 
-                wandb.log({f'{lang}_recall@10': s})
-            
-            run.finish()
+                    wandb.log({f'{lang}_recall@10': s})
+                
+                run.finish()
