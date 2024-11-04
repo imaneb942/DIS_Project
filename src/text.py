@@ -64,17 +64,17 @@ class WordToBase:
             return Stemmer.Stemmer(self.lang).stemWords
         except Exception as e:
             print(
-                f"Inbuilt Stemmer does not exist for {self.lang}, fetching the English Stemmer!"
+                f"Inbuilt Stemmer does not exist for {self.lang}, fetching Identity stemmer!"
             )
             stemmer = self.create_stemmer(single)
         return stemmer
 
     # korean doesn't have stemmer from PyStemmer
     def create_stemmer(self, single: bool = False) -> callable:
-        if single:
-            return Stemmer.Stemmer("en").stemWord
-        return Stemmer.Stemmer("en").stemWords
-
+        # if single:
+        #     return Stemmer.Stemmer("en").stemWord
+        # return Stemmer.Stemmer("en").stemWords
+        return lambda x: x
 
 class TextProcessor:
     """

@@ -10,6 +10,7 @@ best_dump/
 legacy/
 HP_tune_wandb.py
 test.ipynb
+dis-project-1-document-retrieval/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

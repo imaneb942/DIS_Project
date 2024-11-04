@@ -8,7 +8,12 @@
 pip install -r requirements.txt
 ```
 
-2. To run the code for any of the implementations:
+2. To reproduce the results of Kaggle:
+```
+python test_best.py
+```
+
+3. To run the code for any of the implementations:
 ```
 python main.py --method [METHOD] [--save_index] --k1 [K1] --b [B] --d [D]
 
@@ -27,6 +32,11 @@ options:
   --d D                 delta parameter (default: 1)
 ```
 
+4. To perform hyperparameter search on any method (on `wandb`):
+```
+python hyperparamsearch.py <method_name>
+```
+
 
 ## Directory Structure
 
@@ -43,7 +53,7 @@ options:
 └── requirements.txt
 ```
 
-## Team
+## Team_EIJ
 ```
 Eeshaan Jain
 Imane 

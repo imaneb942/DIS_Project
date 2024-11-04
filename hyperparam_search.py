@@ -4,16 +4,16 @@ import pandas as pd
 import time
 import numpy as np
 from src.text import TextProcessor
-import os
+import sys
 from src.utils import idx_to_docid, get_class, return_recall_at_10
 import wandb
 
 
 if __name__ == "__main__":
     corpus = json.load(
-        open("../dis-project-1-document-retrieval/corpus.json/corpus.json", "r")
+        open("dis-project-1-document-retrieval/corpus.json/corpus.json", "r")
     )
-    dev_df = pd.read_csv("../dis-project-1-document-retrieval/dev.csv")
+    dev_df = pd.read_csv("dis-project-1-document-retrieval/dev.csv")
 
     all_corpus = {}
     all_text = {}
@@ -49,10 +49,8 @@ if __name__ == "__main__":
     bs = np.linspace(0.3, 0.9, 13)
     ks = np.linspace(1.0, 2.0, 11)
     ds = [1, 0.5]
-    # ds = np.linspace(0.4, 1, 7)
-    # k1 = 1.5
 
-    method = "BM25_PLUS"
+    method = sys.argv[1]
     M = get_class(f"src.methods.{method}")
     print("Starting", method)
     for d in ds:

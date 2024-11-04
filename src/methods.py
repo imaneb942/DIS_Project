@@ -1102,7 +1102,7 @@ class TF_LDP(TFIDF):
 
         In TF_LDP, we set:
             TF[t] = 1 + log(1 + log(d + (count(t, d) / (1 - b + b * len(d) / L_avg)))
-            IDF[t] = log(num_corpus / DF[t])
+            IDF[t] = log((num_corpus + 1) / DF[t])
             TF-IDF[t, d] = TF[t, d] * IDF[t]
 
         Args:

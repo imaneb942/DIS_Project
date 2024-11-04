@@ -42,9 +42,9 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     corpus = json.load(
-        open("../dis-project-1-document-retrieval/corpus.json/corpus.json", "r")
+        open("dis-project-1-document-retrieval/corpus.json/corpus.json", "r")
     )
-    dev_df = pd.read_csv("../dis-project-1-document-retrieval/dev.csv")
+    dev_df = pd.read_csv("dis-project-1-document-retrieval/dev.csv")
 
 
 for lang in ["ar", "de", "es", "it", "ko", "en", "fr"]:
@@ -61,10 +61,10 @@ for lang in ["ar", "de", "es", "it", "ko", "en", "fr"]:
     query_tokens, query_map = P.preprocess_queries(my_dev_set_queries)
     os.makedirs(f"dump/{lang}", exist_ok=True)
     print("Starting", args.method)
-    M = get_class(f"src.args.methods.{args.method}")
+    M = get_class(f"src.methods.{args.method}")
 
     tf_idf = M(
-        my_text, k1=args.k, b=args.b, d=args.d, save_path=f"dump/{lang}"
+        my_text, k1=args.k1, b=args.b, d=args.d, save_path=f"dump/{lang}"
     )  # for TF_LDP
     print("Starting indexing")
     start = time.perf_counter()
@@ -72,7 +72,7 @@ for lang in ["ar", "de", "es", "it", "ko", "en", "fr"]:
     end = time.perf_counter()
     print(f"Indexing took {end - start}s.")
 
-    if args.save:
+    if args.save_index:
         print(f"Saving Index and Vocab to dump/{lang}")
         start = time.perf_counter()
         tf_idf.save()
