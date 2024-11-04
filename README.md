@@ -38,6 +38,9 @@ options:
 python hyperparamsearch.py <method_name>
 ```
 
+5. To generate the plot in the report, refer to `plots.ipynb`
+
+
 
 ## Directory Structure
 
