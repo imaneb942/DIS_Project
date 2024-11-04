@@ -1,6 +1,9 @@
 # Unifying Non-Semantic Approaches for Multilingual Document Retrieval
 
 
+## Viewing the code
+The main chunk of the code is present in `src/` and is well commented and documented. The files in the main directory are to run the code, and explained below:
+
 ## Running the code
 
 1. Install relevant libraries
