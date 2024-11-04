@@ -35,7 +35,7 @@ options:
 
 4. To perform hyperparameter search on any method (on `wandb`):
 ```
-python hyperparamsearch.py <method_name>
+python hyperparam_search.py <method_name>
 ```
 
 5. To generate the plot in the report, refer to `plots.ipynb`
