@@ -12,6 +12,7 @@ pip install -r requirements.txt
 ```
 python test_best.py
 ```
+Running the above also generates the same files as the TFIDF-Dump dataset folder added to Kaggle.
 
 3. To run the code for any of the implementations:
 ```

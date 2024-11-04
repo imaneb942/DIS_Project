@@ -7,6 +7,7 @@ from tqdm import tqdm
 from src.utils import idx_to_docid, return_recall_at_10, get_class
 from src.methods import *
 from src.text import TextProcessor
+import time
 
 if __name__ == '__main__':
     best_methods = {
@@ -60,7 +61,10 @@ if __name__ == '__main__':
 
         all_P[lang] = TextProcessor(lang)
         corpus_tokens, corpus_map = all_P[lang].preprocess_corpus(my_text)
+        s = time.perf_counter()
         all_tfidf[lang].calculate_scores(corpus_tokens, corpus_map)
+        e = time.perf_counter()
+        print(f'Indexing for {lang} took {e - s}s.')
         all_tfidf[lang].save()
         
 
