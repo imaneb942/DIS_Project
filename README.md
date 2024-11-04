@@ -40,23 +40,6 @@ python hyperparamsearch.py <method_name>
 
 5. To generate the plot in the report, refer to `plots.ipynb`
 
-
-
-## Directory Structure
-
-```
-.
-├── src/
-│   ├── custom_stopwords.py
-│   ├── methods.py
-│   ├── text.py
-│   └── utils.py
-├── hyperparam_search.py
-├── main.py
-├── README.md
-└── requirements.txt
-```
-
 ## Team_EIJ
 ```
 Eeshaan Jain
